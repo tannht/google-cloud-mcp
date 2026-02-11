@@ -41,17 +41,24 @@ def get_credentials():
         creds.refresh(Request())
     return creds
 
+_pending_flow = None
+
 class AuthPortalHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass
+
     def do_GET(self):
+        global _pending_flow
+
         if self.path == '/':
             self.send_response(200)
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            
+
             creds = get_credentials()
             status_color = "#4CAF50" if (creds and creds.valid) else "#f44336"
             status_text = "✅ Authenticated" if (creds and creds.valid) else "❌ Not Authenticated"
-            
+
             html = f"""
             <html>
             <head><title>PubPug Google Portal</title></head>
@@ -67,29 +74,73 @@ class AuthPortalHandler(BaseHTTPRequestHandler):
             </html>
             """
             self.wfile.write(html.encode('utf-8'))
-            
+
         elif self.path == '/login':
             if CLIENT_ID and CLIENT_SECRET:
                 config = {"installed": {"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "redirect_uris": ["http://localhost:3838/callback"]}}
-                flow = InstalledAppFlow.from_client_config(config, SCOPES, redirect_uri="http://localhost:3838/callback")
+                _pending_flow = InstalledAppFlow.from_client_config(config, SCOPES, redirect_uri="http://localhost:3838/callback")
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(CRED_FILE_PATH, SCOPES, redirect_uri="http://localhost:3838/callback")
-            
-            auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline')
+                _pending_flow = InstalledAppFlow.from_client_secrets_file(CRED_FILE_PATH, SCOPES, redirect_uri="http://localhost:3838/callback")
+
+            auth_url, _ = _pending_flow.authorization_url(prompt='consent', access_type='offline')
             self.send_response(302)
             self.send_header('Location', auth_url)
             self.end_headers()
-            
+
         elif self.path.startswith('/callback'):
-            # This is handled by a temporary sub-process or manual logic
-            # For simplicity in this demo, we use a simple message
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(b"<h1>Processing... Please check the server console to complete authentication.</h1>")
+            from urllib.parse import urlparse, parse_qs
+            try:
+                params = parse_qs(urlparse(self.path).query)
+                code = params.get('code', [None])[0]
+                if not code:
+                    raise ValueError("No authorization code received")
+                if not _pending_flow:
+                    raise ValueError("No pending auth flow. Please start from /login again.")
+
+                _pending_flow.fetch_token(code=code)
+                creds = _pending_flow.credentials
+
+                with open(TOKEN_FILE_PATH, 'w') as f:
+                    f.write(creds.to_json())
+                print(f"✅ Token saved to {TOKEN_FILE_PATH}")
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html; charset=utf-8')
+                self.end_headers()
+                html = """
+                <html>
+                <head><title>PubPug - Success</title></head>
+                <body style='font-family: sans-serif; padding: 50px; background: #f0f2f5; display: flex; justify-content: center;'>
+                    <div style='max-width: 500px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;'>
+                        <h1 style='color: #4CAF50;'>✅ Authenticated!</h1>
+                        <p style='color: #666;'>Token saved successfully. You can now use Google services through MCP.</p>
+                        <a href='/' style='display: inline-block; padding: 10px 20px; background: #1a73e8; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;'>Back to Portal</a>
+                    </div>
+                </body>
+                </html>
+                """
+                self.wfile.write(html.encode('utf-8'))
+            except Exception as e:
+                print(f"❌ Auth callback error: {e}")
+                self.send_response(500)
+                self.send_header('Content-type', 'text/html; charset=utf-8')
+                self.end_headers()
+                html = f"""
+                <html>
+                <head><title>PubPug - Error</title></head>
+                <body style='font-family: sans-serif; padding: 50px; background: #f0f2f5; display: flex; justify-content: center;'>
+                    <div style='max-width: 500px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;'>
+                        <h1 style='color: #f44336;'>❌ Error</h1>
+                        <p style='color: #666;'>{e}</p>
+                        <a href='/login' style='display: inline-block; padding: 10px 20px; background: #1a73e8; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;'>Try Again</a>
+                    </div>
+                </body>
+                </html>
+                """
+                self.wfile.write(html.encode('utf-8'))
 
 def start_portal():
-    server = HTTPServer(('localhost', 3838), AuthPortalHandler)
+    server = HTTPServer(('0.0.0.0', 3838), AuthPortalHandler)
     print("🌐 Auth Portal running at http://localhost:3838")
     server.serve_forever()
 

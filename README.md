@@ -55,6 +55,114 @@ uv sync
 uv run server.py
 ```
 
+## ⚙️ MCP Client Configuration
+
+> **Full guide for 25+ clients:** **[MCP_CLIENT.md](MCP_CLIENTS.md)**
+>
+> Covers Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Kiro, Kilo Code, Cline, Roo Code, JetBrains, Gemini CLI, OpenAI Codex, Zed, Augment Code, Warp, Amp, LM Studio, Perplexity, Qwen Code, Amazon Q, and more.
+
+Below are quick-start examples. Replace `/path/to/google-cloud-mcp` with your actual path.
+
+<details>
+<summary><strong>Claude Code</strong></summary>
+
+```bash
+claude mcp add google-cloud-mcp \
+  -e GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
+  -e GOOGLE_CLIENT_SECRET=your-client-secret \
+  -- uv run --directory /path/to/google-cloud-mcp server.py
+```
+</details>
+
+<details>
+<summary><strong>Claude Desktop</strong></summary>
+
+File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+```json
+{
+  "mcpServers": {
+    "google-cloud-mcp": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+File: `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
+
+```json
+{
+  "mcpServers": {
+    "google-cloud-mcp": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>VS Code (Copilot)</strong></summary>
+
+File: `.vscode/mcp.json`
+
+```json
+{
+  "servers": {
+    "google-cloud-mcp": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Docker (any client)</strong></summary>
+
+```json
+{
+  "mcpServers": {
+    "google-cloud-mcp": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GOOGLE_CLIENT_ID",
+        "-e", "GOOGLE_CLIENT_SECRET",
+        "-v", "/path/to/google-cloud-mcp/.token.json:/app/.token.json",
+        "google-cloud-mcp"
+      ],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+</details>
+
 ## 🐕 Attribution
 Developed and maintained by **PubPug Assistant 🐶**.
 
