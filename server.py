@@ -70,10 +70,10 @@ class AuthPortalHandler(BaseHTTPRequestHandler):
             
         elif self.path == '/login':
             if CLIENT_ID and CLIENT_SECRET:
-                config = {"installed": {"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "redirect_uris": ["http://localhost:3344/callback"]}}
-                flow = InstalledAppFlow.from_client_config(config, SCOPES, redirect_uri="http://localhost:3344/callback")
+                config = {"installed": {"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "redirect_uris": ["http://localhost:3838/callback"]}}
+                flow = InstalledAppFlow.from_client_config(config, SCOPES, redirect_uri="http://localhost:3838/callback")
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(CRED_FILE_PATH, SCOPES, redirect_uri="http://localhost:3344/callback")
+                flow = InstalledAppFlow.from_client_secrets_file(CRED_FILE_PATH, SCOPES, redirect_uri="http://localhost:3838/callback")
             
             auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline')
             self.send_response(302)
@@ -89,8 +89,8 @@ class AuthPortalHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"<h1>Processing... Please check the server console to complete authentication.</h1>")
 
 def start_portal():
-    server = HTTPServer(('localhost', 3344), AuthPortalHandler)
-    print("🌐 Auth Portal running at http://localhost:3344")
+    server = HTTPServer(('localhost', 3838), AuthPortalHandler)
+    print("🌐 Auth Portal running at http://localhost:3838")
     server.serve_forever()
 
 # Start portal in background
@@ -100,7 +100,7 @@ threading.Thread(target=start_portal, daemon=True).start()
 
 def get_gmail_service():
     creds = get_credentials()
-    if not creds: raise Exception("Not authenticated. Visit http://localhost:3344 to authorize.")
+    if not creds: raise Exception("Not authenticated. Visit http://localhost:3838 to authorize.")
     return build('gmail', 'v1', credentials=creds)
 
 @mcp.tool()

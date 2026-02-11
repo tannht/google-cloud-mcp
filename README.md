@@ -24,7 +24,7 @@ Setting up Google access is now simpler than ever. No more manual code copying!
 
 1.  **Configure Credentials**: Add your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to the `.env` file.
 2.  **Start the Server**: Run `uv run server.py`.
-3.  **Access Web Portal**: Open your browser and navigate to **`http://localhost:3344`**.
+3.  **Access Web Portal**: Open your browser and navigate to **`http://localhost:3838`**.
 4.  **One-Click Authorize**: Click the **"Authorize with Google"** button and grant permissions.
 5.  **Done!**: The server automatically captures the token and saves it to `.token.json`. Your AI is now connected.
 
