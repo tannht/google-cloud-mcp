@@ -1,12 +1,17 @@
 from fastmcp import FastMCP
 import os.path
 import base64
+import json
 from email.message import EmailMessage
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = [
@@ -20,31 +25,55 @@ SCOPES = [
     'https://www.googleapis.com/auth/presentations'
 ]
 
-# Path to credentials
-CREDENTIALS_PATH = '/root/.openclaw/workspace/credentials/google_client_secret.json'
-TOKEN_PATH = '/root/.google-mcp/tokens/my-google-account.json'
+# Path configuration from env
+CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH', 'credentials.json')
+TOKEN_PATH = os.getenv('GOOGLE_TOKEN_PATH', 'token.json')
+CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 mcp = FastMCP("Google Cloud MCP")
 
-def get_gmail_service():
+def get_credentials():
     creds = None
+    # 1. Try loading from existing token file
     if os.path.exists(TOKEN_PATH):
         creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+    
+    # 2. If no valid credentials, run auth flow
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
+            # Prefer Environment Variables over JSON file
+            if CLIENT_ID and CLIENT_SECRET:
+                client_config = {
+                    "installed": {
+                        "client_id": CLIENT_ID,
+                        "client_secret": CLIENT_SECRET,
+                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                        "redirect_uris": ["http://localhost"]
+                    }
+                }
+                flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
+            else:
+                if not os.path.exists(CREDENTIALS_PATH):
+                    raise FileNotFoundError(f"Missing Google Credentials. Set GOOGLE_CLIENT_ID/SECRET or provide {CREDENTIALS_PATH}")
+                flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
+            
             creds = flow.run_local_server(port=0)
+            
+            # Save the credentials for the next run
+            with open(TOKEN_PATH, 'w') as token:
+                token.write(creds.to_json())
+    return creds
+
+def get_gmail_service():
+    creds = get_credentials()
     return build('gmail', 'v1', credentials=creds)
 
 def get_drive_service():
-    creds = None
-    if os.path.exists(TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+    creds = get_credentials()
     return build('drive', 'v3', credentials=creds)
 
 # --- GMAIL TOOLS ---
@@ -79,7 +108,6 @@ def create_gmail_filter(from_email: str, label_name: str, archive: bool = False)
     """Create a filter to automatically label incoming emails from a specific sender."""
     try:
         service = get_gmail_service()
-        # Find label ID by name
         labels_results = service.users().labels().list(userId='me').execute()
         labels = labels_results.get('labels', [])
         label_id = next((l['id'] for l in labels if l['name'] == label_name), None)
@@ -98,9 +126,39 @@ def create_gmail_filter(from_email: str, label_name: str, archive: bool = False)
         }
         
         result = service.users().settings().filters().create(userId='me', body=filter_body).execute()
-        return f"✅ Filter created: Emails from '{from_email}' will be automatically labeled as '{label_name}' (ID: {result['id']})"
+        return f"✅ Filter created for '{from_email}' (ID: {result['id']})"
     except HttpError as error:
         return f"❌ Error creating filter: {error}"
+
+@mcp.tool()
+def batch_label_emails(query: str, label_name: str):
+    """Search for emails and apply a label to all matching messages."""
+    try:
+        service = get_gmail_service()
+        labels_results = service.users().labels().list(userId='me').execute()
+        labels = labels_results.get('labels', [])
+        label_id = next((l['id'] for l in labels if l['name'] == label_name), None)
+        
+        if not label_id:
+            return f"❌ Error: Label '{label_name}' not found."
+        
+        results = service.users().messages().list(userId='me', q=query).execute()
+        messages = results.get('messages', [])
+        
+        if not messages:
+            return f"No emails found matching query '{query}'."
+        
+        count = 0
+        for msg in messages:
+            service.users().messages().batchModify(userId='me', body={
+                'ids': [msg['id']],
+                'addLabelIds': [label_id]
+            }).execute()
+            count += 1
+            
+        return f"✅ Successfully labeled {count} emails as '{label_name}'."
+    except HttpError as error:
+        return f"❌ Error: {error}"
 
 @mcp.tool()
 def send_email(to: str, subject: str, body: str):
@@ -116,7 +174,7 @@ def send_email(to: str, subject: str, body: str):
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         create_message = {'raw': encoded_message}
         send_message = service.users().messages().send(userId="me", body=create_message).execute()
-        return f"✅ Email sent successfully! Message ID: {send_message['id']}"
+        return f"✅ Email sent! ID: {send_message['id']}"
     except HttpError as error:
         return f"❌ Error sending email: {error}"
 
@@ -125,18 +183,16 @@ def clean_spam():
     """Delete all messages in the Spam folder."""
     try:
         service = get_gmail_service()
-        # Find messages in Spam
         results = service.users().messages().list(userId='me', labelIds=['SPAM']).execute()
         messages = results.get('messages', [])
         if not messages:
-            return "Hòm thư Spam đã sạch bóng quân thù! Gâu!"
+            return "Spam folder is already clean."
         
         count = 0
         for msg in messages:
             service.users().messages().delete(userId='me', id=msg['id']).execute()
             count += 1
-        
-        return f"✅ Đã dọn dẹp xong {count} thư rác. Sạch bong kin kít! 🐶🧹"
+        return f"✅ Cleaned {count} spam emails."
     except HttpError as error:
         return f"❌ Error cleaning spam: {error}"
 
@@ -150,43 +206,9 @@ def search_drive(query: str):
         results = service.files().list(q=query, spaces='drive', fields='files(id, name, mimeType)').execute()
         items = results.get('files', [])
         if not items:
-            return "No files found matching your query."
-        output = []
-        for item in items:
-            output.append(f"- {item['name']} ({item['id']}) [{item['mimeType']}]")
+            return "No files found."
+        output = [f"- {item['name']} ({item['id']})" for item in items]
         return "\n".join(output)
-    except HttpError as error:
-        return f"❌ Error searching drive: {error}"
-
-@mcp.tool()
-def batch_label_emails(query: str, label_name: str):
-    """Search for emails and apply a label to all matching messages."""
-    try:
-        service = get_gmail_service()
-        # Find label ID
-        labels_results = service.users().labels().list(userId='me').execute()
-        labels = labels_results.get('labels', [])
-        label_id = next((l['id'] for l in labels if l['name'] == label_name), None)
-        
-        if not label_id:
-            return f"❌ Error: Label '{label_name}' not found."
-        
-        # Search for messages
-        results = service.users().messages().list(userId='me', q=query).execute()
-        messages = results.get('messages', [])
-        
-        if not messages:
-            return f"Không tìm thấy mail nào khớp với query '{query}' sếp ơi!"
-        
-        count = 0
-        for msg in messages:
-            service.users().messages().batchModify(userId='me', body={
-                'ids': [msg['id']],
-                'addLabelIds': [label_id]
-            }).execute()
-            count += 1
-            
-        return f"✅ Đã 'tha' thành công {count} email vào nhãn '{label_name}'. Chuẩn không cần chỉnh! 🐶📦"
     except HttpError as error:
         return f"❌ Error: {error}"
 
