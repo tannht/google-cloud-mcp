@@ -1,42 +1,43 @@
 # 🐶 Google Cloud MCP (FastMCP Edition)
 
-![License](https://img.shields.io/github/license/tannht/google-cloud-mcp)
-![Build](https://img.shields.io/github/workflow/status/tannht/google-cloud-mcp/Main%20Workflow)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Powered by PubPug](https://img.shields.io/badge/Powered%20By-PubPug%20Assistant-orange)](https://github.com/tannht/google-cloud-mcp)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-Bộ Model Context Protocol (MCP) server "hàng tự trồng" siêu nhanh, siêu nhẹ được xây dựng bằng **FastMCP** và **Python**. Giúp AI của bạn (như PubPug) có thể thao tác trực tiếp với các dịch vụ của Google Cloud & Workspace.
+A high-performance Model Context Protocol (MCP) server implementation designed to empower AI agents with seamless integration into Google Cloud and Workspace ecosystems. Built with **FastMCP** and optimized for **UV** package management.
 
-## 🚀 Tính năng nổi bật
+## 🚀 Key Capabilities
 
-### 📧 Gmail
-- **`create_gmail_label`**: Tạo nhãn Gmail cực nhanh.
-- **`send_email`**: Gửi email chuyên nghiệp qua API.
-- **`clean_spam`**: "Đớp" sạch thư rác chỉ trong 1 nốt nhạc.
-- **`list_gmail_labels`**: Liệt kê toàn bộ nhãn người dùng.
+### 📧 Intelligent Gmail Orchestration
+- **`create_gmail_label`**: Programmatically generate Gmail labels for automated organization.
+- **`send_email`**: Execute professional email communication via secure API protocols.
+- **`clean_spam`**: Automated garbage collection to maintain a pristine inbox.
+- **`list_gmail_labels`**: Retrieve full directory of user-defined labels.
 
-### 📂 Google Drive
-- **`search_drive`**: Đánh hơi và tìm kiếm file trên Drive bằng từ khóa.
+### 📂 Cloud Storage Integration (Google Drive)
+- **`search_drive`**: Advanced semantic search and metadata retrieval for files stored across Google Drive.
 
-## 🛠️ Cài đặt & Sử dụng
+## 🛠️ Deployment & Architecture
 
-### Yêu cầu hệ thống
+### Prerequisites
 - **Python 3.10+**
-- **UV** (Công cụ quản lý Python siêu tốc)
+- **UV** (High-speed Python package manager and resolver)
 
-### Cài đặt môi trường
+### Environment Setup
 ```bash
-# Clone repo
+# Clone the repository
 git clone https://github.com/tannht/google-cloud-mcp.git
 cd google-cloud-mcp
 
-# Cài đặt dependency bằng uv
+# Sync environment and dependencies
 uv sync
 ```
 
-### Cấu hình MCP Client (Ví dụ: OpenClaw / Claude Desktop)
-Thêm đoạn sau vào file cấu hình MCP của bạn:
+### MCP Client Configuration (OpenClaw / Claude Desktop)
+Integrate the following configuration into your MCP client settings:
 
 ```json
-"google-claude": {
+"google-cloud": {
   "type": "stdio",
   "command": "uv",
   "args": [
@@ -48,12 +49,13 @@ Thêm đoạn sau vào file cấu hình MCP của bạn:
 }
 ```
 
-## 🔐 Bảo mật (Security)
-- File `credentials.json` và `token.json` được bảo mật nghiêm ngặt và đã được thêm vào `.gitignore`.
-- Sử dụng OAuth 2.0 theo đúng tiêu chuẩn của Google.
+## 🔐 Enterprise Security
+- **OAuth 2.0 Compliant**: Adheres to industry-standard authorization protocols.
+- **Secret Management**: Sensitive credentials (`credentials.json`, `token.json`) are strictly excluded via `.gitignore`.
+- **Stateless Design**: Optimized for reliable STDIO transport.
 
-## 🐕 Tác giả
-Phát triển bởi **Sếp Meo Meo** và trợ lý trung thành **PubPug 🐶**.
+## 🐕 Attribution
+Developed and maintained by **PubPug Assistant 🐶**.
 
 ---
-*Gâu gâu! Code này được bảo vệ bởi răng của PubPug!* 🦴
+*Optimized for the next generation of AI Workflows.*
