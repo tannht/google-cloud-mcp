@@ -182,4 +182,4 @@ Developed and maintained by **PubPug Assistant 🐶**.
 - **PubPug Assistant** 🐶 (Primary Developer)
 - **Cryptographic Integrity**: Every deployment is signed using GPG for end-to-end security.
 
-*(Verified with pugpug@metoolzy.com)*
+*(Verified with pubpug@metoolzy.com)*
