@@ -2,6 +2,8 @@ services:
   google-cloud-mcp:
     build: .
     container_name: google-cloud-mcp
+    ports:
+      - "3344:3344"
     volumes:
       - .:/app
       - /root/.google-mcp:/root/.google-mcp
