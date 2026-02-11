@@ -492,13 +492,14 @@ wheels = [
 
 [[package]]
 name = "google-cloud-mcp"
-version = "0.1.0"
-source = { virtual = "." }
+version = "2.1.0"
+source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
     { name = "google-api-python-client" },
     { name = "google-auth-httplib2" },
     { name = "google-auth-oauthlib" },
+    { name = "python-dotenv" },
 ]
 
 [package.metadata]
@@ -507,6 +508,7 @@ requires-dist = [
     { name = "google-api-python-client", specifier = ">=2.189.0" },
     { name = "google-auth-httplib2", specifier = ">=0.3.0" },
     { name = "google-auth-oauthlib", specifier = ">=1.2.4" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
 ]
 
 [[package]]
