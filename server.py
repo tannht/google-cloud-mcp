@@ -13,8 +13,11 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.modify',
     'https://www.googleapis.com/auth/gmail.labels',
     'https://www.googleapis.com/auth/gmail.settings.basic',
-    'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.metadata.readonly'
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/documents',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/presentations'
 ]
 
 # Path to credentials
@@ -72,6 +75,34 @@ def list_gmail_labels():
         return f"❌ Error: {error}"
 
 @mcp.tool()
+def create_gmail_filter(from_email: str, label_name: str, archive: bool = False):
+    """Create a filter to automatically label incoming emails from a specific sender."""
+    try:
+        service = get_gmail_service()
+        # Find label ID by name
+        labels_results = service.users().labels().list(userId='me').execute()
+        labels = labels_results.get('labels', [])
+        label_id = next((l['id'] for l in labels if l['name'] == label_name), None)
+        
+        if not label_id:
+            return f"❌ Error: Label '{label_name}' not found. Please create it first."
+        
+        add_labels = [label_id]
+        remove_labels = []
+        if archive:
+            remove_labels.append('INBOX')
+            
+        filter_body = {
+            'criteria': {'from': from_email},
+            'action': {'addLabelIds': add_labels, 'removeLabelIds': remove_labels}
+        }
+        
+        result = service.users().settings().filters().create(userId='me', body=filter_body).execute()
+        return f"✅ Filter created: Emails from '{from_email}' will be automatically labeled as '{label_name}' (ID: {result['id']})"
+    except HttpError as error:
+        return f"❌ Error creating filter: {error}"
+
+@mcp.tool()
 def send_email(to: str, subject: str, body: str):
     """Send a simple email via Gmail."""
     try:
@@ -100,10 +131,12 @@ def clean_spam():
         if not messages:
             return "Hòm thư Spam đã sạch bóng quân thù! Gâu!"
         
+        count = 0
         for msg in messages:
             service.users().messages().delete(userId='me', id=msg['id']).execute()
+            count += 1
         
-        return f"✅ Đã dọn dẹp xong {len(messages)} thư rác. Sạch bong kin kít! 🐶🧹"
+        return f"✅ Đã dọn dẹp xong {count} thư rác. Sạch bong kin kít! 🐶🧹"
     except HttpError as error:
         return f"❌ Error cleaning spam: {error}"
 
@@ -124,6 +157,38 @@ def search_drive(query: str):
         return "\n".join(output)
     except HttpError as error:
         return f"❌ Error searching drive: {error}"
+
+@mcp.tool()
+def batch_label_emails(query: str, label_name: str):
+    """Search for emails and apply a label to all matching messages."""
+    try:
+        service = get_gmail_service()
+        # Find label ID
+        labels_results = service.users().labels().list(userId='me').execute()
+        labels = labels_results.get('labels', [])
+        label_id = next((l['id'] for l in labels if l['name'] == label_name), None)
+        
+        if not label_id:
+            return f"❌ Error: Label '{label_name}' not found."
+        
+        # Search for messages
+        results = service.users().messages().list(userId='me', q=query).execute()
+        messages = results.get('messages', [])
+        
+        if not messages:
+            return f"Không tìm thấy mail nào khớp với query '{query}' sếp ơi!"
+        
+        count = 0
+        for msg in messages:
+            service.users().messages().batchModify(userId='me', body={
+                'ids': [msg['id']],
+                'addLabelIds': [label_id]
+            }).execute()
+            count += 1
+            
+        return f"✅ Đã 'tha' thành công {count} email vào nhãn '{label_name}'. Chuẩn không cần chỉnh! 🐶📦"
+    except HttpError as error:
+        return f"❌ Error: {error}"
 
 if __name__ == "__main__":
     mcp.run()
