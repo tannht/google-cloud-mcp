@@ -6,10 +6,12 @@ services:
       - "3838:3838"
     volumes:
       - .:/app
-      - /root/.google-mcp:/root/.google-mcp
     environment:
-      - GOOGLE_CREDENTIALS_PATH=/app/credentials.json
-      - GOOGLE_TOKEN_PATH=/root/.google-mcp/tokens/my-google-account.json
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CREDENTIALS_PATH=${GOOGLE_CREDENTIALS_PATH:-credentials.json}
+      - GOOGLE_TOKEN_PATH=${GOOGLE_TOKEN_PATH:-.token.json}
+      - GOOGLE_TOKEN_JSON=${GOOGLE_TOKEN_JSON}
     restart: unless-stopped
     stdin_open: true
     tty: true
