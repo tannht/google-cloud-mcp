@@ -1,11 +1,11 @@
-# gg-mcp - Google Workspace MCP Server
+# Google Cloud MCP - Google Workspace MCP Server (gg-mcp)
 
 [![PyPI](https://img.shields.io/pypi/v/gg-mcp.svg)](https://pypi.org/project/gg-mcp/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Docker Support](https://img.shields.io/badge/Docker-Supported-blue.svg?logo=docker)](https://www.docker.com/)
 
-A Model Context Protocol (MCP) server that connects AI agents to Google Workspace: **Gmail**, **Calendar**, and **Drive**. Built with [FastMCP](https://github.com/jlowin/fastmcp).
+A Model Context Protocol (MCP) server that connects AI agents to Google Workspace: **Gmail**, **Calendar**, **Drive**, **Docs**, **Sheets**, and **Slides**. Built with [FastMCP](https://github.com/jlowin/fastmcp).
 
 ```bash
 # Install and run — that's it
@@ -156,7 +156,7 @@ cd google-cloud-mcp
 cp .env.example .env
 # Edit .env with your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 uv sync
-uv run server.py
+uv run main.py
 ```
 
 ### Option C: Docker
@@ -251,7 +251,7 @@ Replace `/path/to/google-cloud-mcp` with your actual path.
   "mcpServers": {
     "gg-mcp": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "main.py"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -299,6 +299,76 @@ Replace `/path/to/google-cloud-mcp` with your actual path.
 | `GOOGLE_TOKEN_JSON` | No | — | Token as inline JSON string (alternative to file) |
 | `GOOGLE_CREDENTIALS_PATH` | No | `credentials.json` | Path to credentials JSON file (fallback) |
 | `AUTH_PORT` | No | `3838` | Port for the authentication web portal |
+
+---
+
+## Development
+
+### Project Structure
+
+```
+google-cloud-mcp/
+├── google_cloud_mcp/
+│   ├── __init__.py          # Package entry point, exports main()
+│   └── server.py            # MCP server implementation (all tools + OAuth portal)
+├── tests/
+│   ├── conftest.py          # Shared pytest fixtures (mock Google services)
+│   ├── test_account.py      # Account info tests
+│   ├── test_calendar.py     # Calendar API tests
+│   ├── test_docs.py         # Docs API tests
+│   ├── test_drive.py        # Drive API tests
+│   ├── test_gmail.py        # Gmail API tests
+│   ├── test_sheets_core.py  # Sheets core tests
+│   ├── test_sheets_extra.py # Sheets extra operations tests
+│   └── test_slides.py       # Slides API tests
+├── main.py                  # CLI entry point wrapper
+├── pyproject.toml           # Project config, dependencies, scripts
+├── docker-compose.yml       # Docker Compose setup
+├── Dockerfile               # Container build
+├── .env.example             # Environment variable template
+└── MCP_CLIENTS.md           # Client configuration guide (25+ clients)
+```
+
+### Setup
+
+```bash
+git clone https://github.com/tannht/google-cloud-mcp.git
+cd google-cloud-mcp
+uv sync --group dev
+cp .env.example .env
+# Edit .env with your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run with verbose output
+uv run pytest -v
+
+# Run a specific test file
+uv run pytest tests/test_gmail.py -v
+
+# Run with coverage report
+uv run pytest --cov=google_cloud_mcp --cov-report=term-missing
+```
+
+### VS Code Debugging
+
+The project includes `.vscode/launch.json` with pre-configured debug profiles:
+
+| Configuration | Description |
+|---|---|
+| **Run MCP Server** | Launch the MCP server (`google_cloud_mcp` module) |
+| **Run main.py** | Run the `main.py` entry point |
+| **Python: Current File** | Debug the currently open Python file |
+| **Pytest: All Tests** | Run all tests in `tests/` with verbose output |
+| **Pytest: Current File** | Run tests in the currently open test file |
+| **Pytest: With Coverage** | Run all tests with coverage report |
+
+Open the **Run & Debug** panel (`Ctrl+Shift+D` / `Cmd+Shift+D`) and select a configuration from the dropdown.
 
 ---
 
