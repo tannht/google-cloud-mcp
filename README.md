@@ -1,7 +1,7 @@
 # 🐶 Google Cloud MCP (FastMCP Edition)
 
-![License](https://img.shields.io/github/license/tannht/google-claude-mcp)
-![Build](https://img.shields.io/github/workflow/status/tannht/google-claude-mcp/Main%20Workflow)
+![License](https://img.shields.io/github/license/tannht/google-cloud-mcp)
+![Build](https://img.shields.io/github/workflow/status/tannht/google-cloud-mcp/Main%20Workflow)
 
 Bộ Model Context Protocol (MCP) server "hàng tự trồng" siêu nhanh, siêu nhẹ được xây dựng bằng **FastMCP** và **Python**. Giúp AI của bạn (như PubPug) có thể thao tác trực tiếp với các dịch vụ của Google Cloud & Workspace.
 
@@ -25,8 +25,8 @@ Bộ Model Context Protocol (MCP) server "hàng tự trồng" siêu nhanh, siêu
 ### Cài đặt môi trường
 ```bash
 # Clone repo
-git clone https://github.com/tannht/google-claude-mcp.git
-cd google-claude-mcp
+git clone https://github.com/tannht/google-cloud-mcp.git
+cd google-cloud-mcp
 
 # Cài đặt dependency bằng uv
 uv sync
@@ -42,8 +42,8 @@ Thêm đoạn sau vào file cấu hình MCP của bạn:
   "args": [
     "run",
     "--project",
-    "/root/PROJECTS/google-claude-mcp",
-    "/root/PROJECTS/google-claude-mcp/server.py"
+    "/root/PROJECTS/google-cloud-mcp",
+    "/root/PROJECTS/google-cloud-mcp/server.py"
   ]
 }
 ```
