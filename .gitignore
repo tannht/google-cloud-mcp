@@ -1,5 +1,9 @@
 .venv/
 __pycache__/
-*.json
-*.log
 .env
+*.log
+
+# Secrets
+credentials.json
+token.json
+.token.json
