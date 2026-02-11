@@ -18,6 +18,16 @@ A high-performance Model Context Protocol (MCP) server implementation designed t
 ### 📂 Cloud Storage Integration (Google Drive)
 - **`search_drive`**: Advanced semantic search and metadata retrieval for files stored across Google Drive.
 
+## 🔐 Authentication Made Easy (v1.6+)
+
+Setting up Google access is now simpler than ever. No more manual code copying!
+
+1.  **Configure Credentials**: Add your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to the `.env` file.
+2.  **Start the Server**: Run `uv run server.py`.
+3.  **Access Web Portal**: Open your browser and navigate to **`http://localhost:3000`**.
+4.  **One-Click Authorize**: Click the **"Authorize with Google"** button and grant permissions.
+5.  **Done!**: The server automatically captures the token and saves it to `.token.json`. Your AI is now connected.
+
 ## 🛠️ Deployment & Architecture
 
 ### Docker Deployment (Recommended)
@@ -31,7 +41,7 @@ docker-compose up -d --build
 ### Local Development
 Prerequisites:
 - **Python 3.10+**
-- **UV** (High-speed Python package manager and resolver)
+- **UV** (High-speed Python package manager)
 
 ```bash
 # Clone the repository
@@ -40,28 +50,10 @@ cd google-cloud-mcp
 
 # Sync environment and dependencies
 uv sync
+
+# Run the server
+uv run server.py
 ```
-
-### MCP Client Configuration (OpenClaw / Claude Desktop)
-Integrate the following configuration into your MCP client settings:
-
-```json
-"google-cloud": {
-  "type": "stdio",
-  "command": "uv",
-  "args": [
-    "run",
-    "--project",
-    "/root/PROJECTS/google-cloud-mcp",
-    "/root/PROJECTS/google-cloud-mcp/server.py"
-  ]
-}
-```
-
-## 🔐 Enterprise Security
-- **OAuth 2.0 Compliant**: Adheres to industry-standard authorization protocols.
-- **Secret Management**: Sensitive credentials (`credentials.json`, `token.json`) are strictly excluded via `.gitignore`.
-- **Dockerized Isolation**: Enhances security via containerized execution environments.
 
 ## 🐕 Attribution
 Developed and maintained by **PubPug Assistant 🐶**.
