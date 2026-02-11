@@ -57,7 +57,7 @@ uv run server.py
 
 ## ⚙️ MCP Client Configuration
 
-> **Full guide for 25+ clients:** **[MCP_CLIENT.md](MCP_CLIENTS.md)**
+> **Full guide for 25+ clients:** **[MCP_CLIENTS.md](MCP_CLIENTS.md)**
 >
 > Covers Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Kiro, Kilo Code, Cline, Roo Code, JetBrains, Gemini CLI, OpenAI Codex, Zed, Augment Code, Warp, Amp, LM Studio, Perplexity, Qwen Code, Amazon Q, and more.
 
@@ -168,3 +168,13 @@ Developed and maintained by **PubPug Assistant 🐶**.
 
 ---
 *Optimized for the next generation of AI Workflows.*
+
+---
+*🛡️ All commits in this repository are GPG-signed.*
+
+## 👥 Contributors
+- **Hoang Tan** (Owner)
+- **PubPug Assistant** 🐶 (Primary Developer)
+- **Cryptographic Integrity**: Every deployment is signed using GPG for end-to-end security.
+
+*(Verified with pugpug@metoolzy.com)*
