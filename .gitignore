@@ -9,3 +9,7 @@ dist/
 credentials.json
 token.json
 .token.json
+.claude-flow
+.coverage
+.vscode/
+.idea/

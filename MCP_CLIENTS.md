@@ -1,37 +1,33 @@
 # MCP Client Configuration Guide
 
-This guide covers how to configure **Google Cloud MCP** for every major MCP-compatible client.
+Complete configuration guide for **gg-mcp** across all major MCP-compatible clients.
 
-> Replace `/path/to/google-cloud-mcp` with the actual absolute path to your cloned repository.
+Each client section shows two methods:
+- **`uvx` (Recommended)** — Install from PyPI, no path needed
+- **From Source** — For development, requires cloning the repo
+
+> Replace `/path/to/google-cloud-mcp` with the actual absolute path to your cloned repository (only needed for "From Source" method).
 
 ---
 
 ## Claude Code
 
-**CLI command:**
+**uvx (Recommended):**
 
 ```bash
-claude mcp add google-cloud-mcp \
+claude mcp add gg-mcp \
+  -e GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
+  -e GOOGLE_CLIENT_SECRET=your-client-secret \
+  -- uvx gg-mcp
+```
+
+**From Source:**
+
+```bash
+claude mcp add gg-mcp \
   -e GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
   -e GOOGLE_CLIENT_SECRET=your-client-secret \
   -- uv run --directory /path/to/google-cloud-mcp server.py
-```
-
-**Or manually create `.mcp.json` in your project root:**
-
-```json
-{
-  "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
-      "env": {
-        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
-        "GOOGLE_CLIENT_SECRET": "your-client-secret"
-      }
-    }
-  }
-}
 ```
 
 ---
@@ -40,10 +36,30 @@ claude mcp add google-cloud-mcp \
 
 **File:** `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
 
+**uvx (Recommended):**
+
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+
+<details>
+<summary>From Source</summary>
+
+```json
+{
+  "mcpServers": {
+    "gg-mcp": {
       "command": "uv",
       "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
       "env": {
@@ -54,6 +70,7 @@ claude mcp add google-cloud-mcp \
   }
 }
 ```
+</details>
 
 ---
 
@@ -61,10 +78,30 @@ claude mcp add google-cloud-mcp \
 
 **File:** `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
 
+**uvx (Recommended):**
+
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+
+<details>
+<summary>From Source</summary>
+
+```json
+{
+  "mcpServers": {
+    "gg-mcp": {
       "command": "uv",
       "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
       "env": {
@@ -75,6 +112,7 @@ claude mcp add google-cloud-mcp \
   }
 }
 ```
+</details>
 
 ---
 
@@ -82,10 +120,31 @@ claude mcp add google-cloud-mcp \
 
 **File:** `.vscode/mcp.json` in your workspace
 
+**uvx (Recommended):**
+
 ```json
 {
   "servers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["gg-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+
+<details>
+<summary>From Source</summary>
+
+```json
+{
+  "servers": {
+    "gg-mcp": {
       "type": "stdio",
       "command": "uv",
       "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
@@ -97,6 +156,7 @@ claude mcp add google-cloud-mcp \
   }
 }
 ```
+</details>
 
 ---
 
@@ -107,10 +167,10 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "servers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "type": "stdio",
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -129,9 +189,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -150,10 +210,10 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "type": "local",
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -172,9 +232,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -193,9 +253,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -216,9 +276,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -237,9 +297,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -258,9 +318,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -279,9 +339,9 @@ claude mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -298,11 +358,11 @@ claude mcp add google-cloud-mcp \
 **File:** `codex.toml` or `~/.codex/config.toml`
 
 ```toml
-[mcp_servers.google-cloud-mcp]
-command = "uv"
-args = ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"]
+[mcp_servers.gg-mcp]
+command = "uvx"
+args = ["gg-mcp"]
 
-[mcp_servers.google-cloud-mcp.env]
+[mcp_servers.gg-mcp.env]
 GOOGLE_CLIENT_ID = "your-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "your-client-secret"
 ```
@@ -318,9 +378,9 @@ GOOGLE_CLIENT_SECRET = "your-client-secret"
   "augment.advanced": {
     "mcpServers": [
       {
-        "name": "google-cloud-mcp",
-        "command": "uv",
-        "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+        "name": "gg-mcp",
+        "command": "uvx",
+        "args": ["gg-mcp"],
         "env": {
           "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
           "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -340,10 +400,10 @@ GOOGLE_CLIENT_SECRET = "your-client-secret"
 ```json
 {
   "context_servers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "command": {
-        "path": "uv",
-        "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+        "path": "uvx",
+        "args": ["gg-mcp"],
         "env": {
           "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
           "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -363,9 +423,9 @@ GOOGLE_CLIENT_SECRET = "your-client-secret"
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -382,9 +442,9 @@ GOOGLE_CLIENT_SECRET = "your-client-secret"
 ```json
 {
   "mcp": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "type": "local",
-      "command": ["uv", "run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "command": ["uvx", "gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -404,9 +464,9 @@ GOOGLE_CLIENT_SECRET = "your-client-secret"
 **CLI command:**
 
 ```bash
-qwen mcp add google-cloud-mcp \
-  --command uv \
-  --args '["run", "--directory", "/path/to/google-cloud-mcp", "server.py"]' \
+qwen mcp add gg-mcp \
+  --command uvx \
+  --args '["gg-mcp"]' \
   --scope user
 ```
 
@@ -415,9 +475,9 @@ qwen mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -434,9 +494,9 @@ qwen mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -455,9 +515,9 @@ qwen mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -472,8 +532,7 @@ qwen mcp add google-cloud-mcp \
 ## Amp
 
 ```bash
-amp mcp add google-cloud-mcp \
-  -- uv run --directory /path/to/google-cloud-mcp server.py
+amp mcp add gg-mcp -- uvx gg-mcp
 ```
 
 ---
@@ -485,9 +544,9 @@ amp mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -506,9 +565,9 @@ amp mcp add google-cloud-mcp \
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -527,13 +586,13 @@ Replace the `command` and `args` in any configuration above:
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
         "-e", "GOOGLE_CLIENT_ID",
         "-e", "GOOGLE_CLIENT_SECRET",
-        "-v", "/path/to/google-cloud-mcp/.token.json:/app/.token.json",
+        "-p", "3838:3838",
         "google-cloud-mcp"
       ],
       "env": {
@@ -549,14 +608,14 @@ Replace the `command` and `args` in any configuration above:
 
 ## Windows Users
 
-If you are on Windows, wrap the command with `cmd`:
+If `uvx` is not in your PATH on Windows, wrap with `cmd`:
 
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
       "command": "cmd",
-      "args": ["/c", "uv", "run", "--directory", "C:\\path\\to\\google-cloud-mcp", "server.py"],
+      "args": ["/c", "uvx", "gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
