@@ -72,7 +72,7 @@ Install from PyPI and use `uvx` — no cloning, no path headaches:
 
 ```bash
 # Install once
-pip install google-cloud-mcp
+pip install gg-mcp
 ```
 
 <details>
@@ -82,7 +82,7 @@ pip install google-cloud-mcp
 claude mcp add google-cloud-mcp \
   -e GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
   -e GOOGLE_CLIENT_SECRET=your-client-secret \
-  -- uvx google-cloud-mcp
+  -- uvx gg-mcp
 ```
 </details>
 
@@ -96,7 +96,7 @@ File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) 
   "mcpServers": {
     "google-cloud-mcp": {
       "command": "uvx",
-      "args": ["google-cloud-mcp"],
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -115,7 +115,7 @@ File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) 
   "mcpServers": {
     "google-cloud-mcp": {
       "command": "uvx",
-      "args": ["google-cloud-mcp"],
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"

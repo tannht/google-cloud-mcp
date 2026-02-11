@@ -1,5 +1,5 @@
 [project]
-name = "google-cloud-mcp"
+name = "gg-mcp"
 version = "2.1.0"
 description = "MCP server for Google Calendar, Gmail, and Drive integration"
 readme = "README.md"
@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-google-cloud-mcp = "google_cloud_mcp:main"
+gg-mcp = "google_cloud_mcp:main"
 
 [project.urls]
 Homepage = "https://github.com/tannht/google-cloud-mcp"
@@ -31,3 +31,6 @@ Repository = "https://github.com/tannht/google-cloud-mcp"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["google_cloud_mcp"]
