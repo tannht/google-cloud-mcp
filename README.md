@@ -1,81 +1,201 @@
-# 🐶 Google Cloud MCP (FastMCP Edition)
+# gg-mcp - Google Workspace MCP Server
 
+[![PyPI](https://img.shields.io/pypi/v/gg-mcp.svg)](https://pypi.org/project/gg-mcp/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Powered by PubPug](https://img.shields.io/badge/Powered%20By-PubPug%20Assistant-orange)](https://github.com/tannht/google-cloud-mcp)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Docker Support](https://img.shields.io/badge/Docker-Supported-blue.svg?logo=docker)](https://www.docker.com/)
 
-A high-performance Model Context Protocol (MCP) server implementation designed to empower AI agents with seamless integration into Google Cloud and Workspace ecosystems. Built with **FastMCP** and optimized for **UV** and **Docker**.
-
-## 🚀 Key Capabilities
-
-### 📅 Google Calendar Orchestration
-- **`list_calendar_events`**: Retrieve upcoming schedule and event details.
-- **`create_calendar_event`**: Programmatically schedule new appointments and meetings.
-- **`delete_calendar_event`**: Remove events from the primary calendar.
-
-### 📧 Intelligent Gmail Orchestration
-- **`create_gmail_label`**: Programmatically generate Gmail labels for automated organization.
-- **`batch_label_emails`**: Apply labels to historical emails based on search queries.
-- **`create_gmail_filter`**: Establish automated routing rules for incoming communications.
-- **`send_email`**: Execute professional email communication via secure API protocols.
-- **`clean_spam`**: Automated garbage collection to maintain a pristine inbox.
-
-### 📂 Cloud Storage Integration (Google Drive)
-- **`search_drive`**: Advanced semantic search and metadata retrieval for files stored across Google Drive.
-
-## 🔐 Authentication Made Easy (v1.6+)
-
-Setting up Google access is now simpler than ever. No more manual code copying!
-
-1.  **Configure Credentials**: Add your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to the `.env` file.
-2.  **Start the Server**: Run `uv run server.py`.
-3.  **Access Web Portal**: Open your browser and navigate to **`http://localhost:3838`**.
-4.  **One-Click Authorize**: Click the **"Authorize with Google"** button and grant permissions.
-5.  **Done!**: The server automatically captures the token and saves it to `.token.json`. Your AI is now connected.
-
-## 🛠️ Deployment & Architecture
-
-### Docker Deployment (Recommended)
-The fastest way to deploy the server is using Docker Compose:
+A Model Context Protocol (MCP) server that connects AI agents to Google Workspace: **Gmail**, **Calendar**, and **Drive**. Built with [FastMCP](https://github.com/jlowin/fastmcp).
 
 ```bash
-# Build and start the container
-docker-compose up -d --build
+# Install and run — that's it
+uvx gg-mcp
 ```
 
-### Local Development
-Prerequisites:
-- **Python 3.10+**
-- **UV** (High-speed Python package manager)
+---
+
+## Available Tools
+
+### Account
+| Tool | Description |
+|------|-------------|
+| `get_account_info` | Get the email address of the authenticated Google account |
+
+### Gmail
+| Tool | Description |
+|------|-------------|
+| `send_email` | Send an email (to, subject, body) |
+| `create_gmail_label` | Create a new Gmail label |
+| `list_gmail_labels` | List all user-created labels |
+
+### Google Calendar
+| Tool | Description |
+|------|-------------|
+| `list_calendar_events` | List upcoming events (with optional `max_results` and `days_back`) |
+| `create_calendar_event` | Create an event (summary, start_time, end_time in `YYYY-MM-DDTHH:MM` format) |
+
+### Google Drive
+| Tool | Description |
+|------|-------------|
+| `search_drive` | Search files by query string |
+
+### Google Docs
+| Tool | Description |
+|------|-------------|
+| `create_document` | Create a new document with optional initial text |
+| `get_document` | Get the full text content of a document |
+| `append_to_document` | Append text to the end of a document |
+| `search_documents` | Search for documents in Drive |
+| `export_document` | Export a document (text, html, pdf, docx) |
+
+### Google Sheets
+| Tool | Description |
+|------|-------------|
+| `create_spreadsheet` | Create a new spreadsheet |
+| `read_spreadsheet` | Read data from a range (e.g. `Sheet1!A1:D10`) |
+| `update_spreadsheet` | Update cells with JSON 2D array values |
+| `append_to_spreadsheet` | Append rows to a spreadsheet |
+| `search_spreadsheets` | Search for spreadsheets in Drive |
+| `get_spreadsheet_info` | Get metadata, sheet names, and dimensions |
+| `clear_spreadsheet_range` | Clear all values in a range |
+| `batch_update_spreadsheet` | Batch update multiple ranges at once |
+| `add_sheet` | Add a new sheet/tab to an existing spreadsheet |
+| `export_spreadsheet` | Export a spreadsheet (csv, xlsx, pdf, tsv) |
+
+### Google Slides
+| Tool | Description |
+|------|-------------|
+| `create_presentation` | Create a new presentation |
+| `get_presentation` | Get slide metadata and text content |
+| `add_slide` | Add a new slide with layout selection |
+| `add_text_to_slide` | Add a text box to a specific slide |
+| `search_presentations` | Search for presentations in Drive |
+| `delete_slide` | Delete a slide by index |
+| `export_presentation` | Export a presentation (pdf, pptx, txt) |
+
+---
+
+## Prerequisites
+
+### 1. Create Google Cloud OAuth Credentials
+
+You need a Google Cloud project with OAuth 2.0 credentials. Follow these steps:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Navigate to **APIs & Services > OAuth consent screen**
+   - Choose **External** user type
+   - Fill in app name and support email
+   - Under **Scopes**, click **Add or Remove Scopes** and add all of the following:
+     ```
+     https://www.googleapis.com/auth/gmail.modify
+     https://www.googleapis.com/auth/gmail.labels
+     https://www.googleapis.com/auth/gmail.settings.basic
+     https://www.googleapis.com/auth/drive
+     https://www.googleapis.com/auth/calendar
+     https://www.googleapis.com/auth/documents
+     https://www.googleapis.com/auth/spreadsheets
+     https://www.googleapis.com/auth/presentations
+     ```
+     > You can paste them all at once in the **"Manually add scopes"** text box (one per line or comma-separated).
+   - Add your email to **Test users** (required while app is in "Testing" status)
+4. Navigate to **APIs & Services > Credentials**
+   - Click **Create Credentials > OAuth client ID**
+   - Application type: **Desktop app**
+   - Copy the **Client ID** and **Client Secret**
+
+### 2. Enable Required Google APIs
+
+In the [API Library](https://console.cloud.google.com/apis/library), enable these APIs for your project:
+
+| API | Required For |
+|-----|-------------|
+| **Gmail API** | `send_email`, `create_gmail_label`, `list_gmail_labels`, `get_account_info` |
+| **Google Calendar API** | `list_calendar_events`, `create_calendar_event` |
+| **Google Drive API** | `search_drive`, `search_documents`, `search_spreadsheets`, `search_presentations`, exports |
+| **Google Docs API** | `create_document`, `get_document`, `append_to_document` |
+| **Google Sheets API** | `create_spreadsheet`, `read_spreadsheet`, `update_spreadsheet`, and other Sheets tools |
+| **Google Slides API** | `create_presentation`, `get_presentation`, `add_slide`, and other Slides tools |
+
+> **Tip:** You only need to enable the APIs for the services you plan to use.
+
+### 3. OAuth Scopes Requested
+
+When you authorize, the server requests the following permissions:
+
+| Scope | Purpose |
+|-------|---------|
+| `gmail.modify` | Read and send emails |
+| `gmail.labels` | Manage labels |
+| `gmail.settings.basic` | Read Gmail settings |
+| `drive` | Search files in Google Drive |
+| `calendar` | Read and create calendar events |
+| `documents` | Google Docs access |
+| `spreadsheets` | Google Sheets access |
+| `presentations` | Google Slides access |
+
+---
+
+## Quick Start
+
+### Option A: Install from PyPI (Recommended)
+
+No cloning, no path configuration:
 
 ```bash
-# Clone the repository
+pip install gg-mcp
+```
+
+Then configure your MCP client (see below).
+
+### Option B: From Source
+
+```bash
 git clone https://github.com/tannht/google-cloud-mcp.git
 cd google-cloud-mcp
-
-# Sync environment and dependencies
+cp .env.example .env
+# Edit .env with your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 uv sync
-
-# Run the server
 uv run server.py
 ```
 
-## ⚙️ MCP Client Configuration
+### Option C: Docker
+
+```bash
+cp .env.example .env
+# Edit .env with your credentials
+docker-compose up -d --build
+```
+
+---
+
+## Authentication
+
+On first run, the server starts a web portal at **http://localhost:3838**:
+
+1. Open `http://localhost:3838` in your browser
+2. Click **"Authorize with Google"**
+3. Grant the requested permissions
+4. Token is saved automatically to `.token.json`
+
+After initial auth, the token refreshes automatically. No manual steps needed.
+
+---
+
+## MCP Client Configuration
 
 > **Full guide for 25+ clients:** **[MCP_CLIENTS.md](MCP_CLIENTS.md)**
->
-> Covers Claude Code, Claude Desktop, Cursor, VS Code, Windsurf, Kiro, Kilo Code, Cline, Roo Code, JetBrains, Gemini CLI, OpenAI Codex, Zed, Augment Code, Warp, Amp, LM Studio, Perplexity, Qwen Code, Amazon Q, and more.
 
-Below are quick-start examples. Replace `/path/to/google-cloud-mcp` with your actual path.
+### Using `uvx` (Recommended - No Path Needed)
 
 <details>
 <summary><strong>Claude Code</strong></summary>
 
 ```bash
-claude mcp add google-cloud-mcp \
+claude mcp add gg-mcp \
   -e GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
   -e GOOGLE_CLIENT_SECRET=your-client-secret \
-  -- uv run --directory /path/to/google-cloud-mcp server.py
+  -- uvx gg-mcp
 ```
 </details>
 
@@ -87,9 +207,9 @@ File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) 
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -101,16 +221,14 @@ File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) 
 </details>
 
 <details>
-<summary><strong>Cursor</strong></summary>
-
-File: `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
+<summary><strong>Cursor / VS Code / Any MCP Client</strong></summary>
 
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+    "gg-mcp": {
+      "command": "uvx",
+      "args": ["gg-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "your-client-secret"
@@ -121,41 +239,42 @@ File: `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
 ```
 </details>
 
-<details>
-<summary><strong>VS Code (Copilot)</strong></summary>
-
-File: `.vscode/mcp.json`
-
-```json
-{
-  "servers": {
-    "google-cloud-mcp": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
-      "env": {
-        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
-        "GOOGLE_CLIENT_SECRET": "your-client-secret"
-      }
-    }
-  }
-}
-```
-</details>
+### From Source (for development)
 
 <details>
-<summary><strong>Docker (any client)</strong></summary>
+<summary><strong>Any MCP Client (uv run)</strong></summary>
+
+Replace `/path/to/google-cloud-mcp` with your actual path.
 
 ```json
 {
   "mcpServers": {
-    "google-cloud-mcp": {
+    "gg-mcp": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/google-cloud-mcp", "server.py"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Docker</strong></summary>
+
+```json
+{
+  "mcpServers": {
+    "gg-mcp": {
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
         "-e", "GOOGLE_CLIENT_ID",
         "-e", "GOOGLE_CLIENT_SECRET",
-        "-v", "/path/to/google-cloud-mcp/.token.json:/app/.token.json",
+        "-p", "3838:3838",
         "google-cloud-mcp"
       ],
       "env": {
@@ -168,18 +287,39 @@ File: `.vscode/mcp.json`
 ```
 </details>
 
-## 🐕 Attribution
-Developed and maintained by **PubPug Assistant 🐶**.
+---
+
+## Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GOOGLE_CLIENT_ID` | Yes | — | OAuth 2.0 Client ID from Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | Yes | — | OAuth 2.0 Client Secret |
+| `GOOGLE_TOKEN_PATH` | No | `.token.json` | Path to saved OAuth token file |
+| `GOOGLE_TOKEN_JSON` | No | — | Token as inline JSON string (alternative to file) |
+| `GOOGLE_CREDENTIALS_PATH` | No | `credentials.json` | Path to credentials JSON file (fallback) |
+| `AUTH_PORT` | No | `3838` | Port for the authentication web portal |
 
 ---
-*Optimized for the next generation of AI Workflows.*
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `403: access_denied` | Add your email to **Test users** in OAuth consent screen |
+| `403: API not enabled` | Enable the required API in [API Library](https://console.cloud.google.com/apis/library) |
+| `Token expired` | Delete `.token.json` and re-authorize via `http://localhost:3838` |
+| `redirect_uri_mismatch` | Ensure OAuth app type is **Desktop app**, not Web |
 
 ---
-*🛡️ All commits in this repository are GPG-signed.*
 
-## 👥 Contributors
+## License
+
+MIT
+
+## Contributors
+
 - **Hoang Tan** (Owner)
-- **PubPug Assistant** 🐶 (Primary Developer)
-- **Cryptographic Integrity**: Every deployment is signed using GPG for end-to-end security.
+- **PubPug Assistant** (Primary Developer)
 
-*(Verified with pubpug@metoolzy.com)*
+*(pubpug@metoolzy.com)*

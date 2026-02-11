@@ -2,8 +2,14 @@
 __pycache__/
 .env
 *.log
+dist/
+*.egg-info/
 
 # Secrets
 credentials.json
 token.json
 .token.json
+.claude-flow
+.coverage
+.vscode/
+.idea/

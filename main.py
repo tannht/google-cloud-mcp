@@ -1,6 +1,4 @@
-def main():
-    print("Hello from google-cloud-mcp!")
-
+from google_cloud_mcp import main
 
 if __name__ == "__main__":
     main()
