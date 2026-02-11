@@ -11,6 +11,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 # Load environment variables
 load_dotenv()
@@ -37,122 +38,21 @@ def get_credentials():
     creds = None
     if os.path.exists(TOKEN_FILE_PATH):
         creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH, SCOPES)
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
     return creds
 
-_pending_flow = None
+def get_gmail_service():
+    return build('gmail', 'v1', credentials=get_credentials())
 
-class AuthPortalHandler(BaseHTTPRequestHandler):
-    def log_message(self, format, *args):
-        pass
+def get_drive_service():
+    return build('drive', 'v3', credentials=get_credentials())
 
-    def do_GET(self):
-        global _pending_flow
-
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-
-            creds = get_credentials()
-            status_color = "#4CAF50" if (creds and creds.valid) else "#f44336"
-            status_text = "✅ Authenticated" if (creds and creds.valid) else "❌ Not Authenticated"
-
-            html = f"""
-            <html>
-            <head><title>PubPug Google Portal</title></head>
-            <body style='font-family: sans-serif; padding: 50px; background: #f0f2f5; display: flex; justify-content: center;'>
-                <div style='max-width: 500px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;'>
-                    <h1 style='color: #1a73e8;'>🐶 PubPug Google MCP</h1>
-                    <p style='font-size: 18px; color: {status_color}; font-weight: bold;'>{status_text}</p>
-                    <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
-                    <p style='color: #666;'>To empower your AI with Gmail, Drive, and more, please authorize below.</p>
-                    <a href='/login' style='display: inline-block; padding: 15px 30px; background: #1a73e8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;'>🔑 Click to Authorize with Google</a>
-                </div>
-            </body>
-            </html>
-            """
-            self.wfile.write(html.encode('utf-8'))
-
-        elif self.path == '/login':
-            if CLIENT_ID and CLIENT_SECRET:
-                config = {"installed": {"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "redirect_uris": ["http://localhost:3838/callback"]}}
-                _pending_flow = InstalledAppFlow.from_client_config(config, SCOPES, redirect_uri="http://localhost:3838/callback")
-            else:
-                _pending_flow = InstalledAppFlow.from_client_secrets_file(CRED_FILE_PATH, SCOPES, redirect_uri="http://localhost:3838/callback")
-
-            auth_url, _ = _pending_flow.authorization_url(prompt='consent', access_type='offline')
-            self.send_response(302)
-            self.send_header('Location', auth_url)
-            self.end_headers()
-
-        elif self.path.startswith('/callback'):
-            from urllib.parse import urlparse, parse_qs
-            try:
-                params = parse_qs(urlparse(self.path).query)
-                code = params.get('code', [None])[0]
-                if not code:
-                    raise ValueError("No authorization code received")
-                if not _pending_flow:
-                    raise ValueError("No pending auth flow. Please start from /login again.")
-
-                _pending_flow.fetch_token(code=code)
-                creds = _pending_flow.credentials
-
-                with open(TOKEN_FILE_PATH, 'w') as f:
-                    f.write(creds.to_json())
-                print(f"✅ Token saved to {TOKEN_FILE_PATH}")
-
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html; charset=utf-8')
-                self.end_headers()
-                html = """
-                <html>
-                <head><title>PubPug - Success</title></head>
-                <body style='font-family: sans-serif; padding: 50px; background: #f0f2f5; display: flex; justify-content: center;'>
-                    <div style='max-width: 500px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;'>
-                        <h1 style='color: #4CAF50;'>✅ Authenticated!</h1>
-                        <p style='color: #666;'>Token saved successfully. You can now use Google services through MCP.</p>
-                        <a href='/' style='display: inline-block; padding: 10px 20px; background: #1a73e8; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;'>Back to Portal</a>
-                    </div>
-                </body>
-                </html>
-                """
-                self.wfile.write(html.encode('utf-8'))
-            except Exception as e:
-                print(f"❌ Auth callback error: {e}")
-                self.send_response(500)
-                self.send_header('Content-type', 'text/html; charset=utf-8')
-                self.end_headers()
-                html = f"""
-                <html>
-                <head><title>PubPug - Error</title></head>
-                <body style='font-family: sans-serif; padding: 50px; background: #f0f2f5; display: flex; justify-content: center;'>
-                    <div style='max-width: 500px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;'>
-                        <h1 style='color: #f44336;'>❌ Error</h1>
-                        <p style='color: #666;'>{e}</p>
-                        <a href='/login' style='display: inline-block; padding: 10px 20px; background: #1a73e8; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;'>Try Again</a>
-                    </div>
-                </body>
-                </html>
-                """
-                self.wfile.write(html.encode('utf-8'))
-
-def start_portal():
-    server = HTTPServer(('0.0.0.0', 3838), AuthPortalHandler)
-    print("🌐 Auth Portal running at http://localhost:3838")
-    server.serve_forever()
-
-# Start portal in background
-threading.Thread(target=start_portal, daemon=True).start()
+def get_calendar_service():
+    return build('calendar', 'v3', credentials=get_credentials())
 
 # --- GMAIL TOOLS ---
-
-def get_gmail_service():
-    creds = get_credentials()
-    if not creds: raise Exception("Not authenticated. Visit http://localhost:3838 to authorize.")
-    return build('gmail', 'v1', credentials=creds)
 
 @mcp.tool()
 def create_gmail_label(name: str):
@@ -172,6 +72,76 @@ def list_gmail_labels():
         res = service.users().labels().list(userId='me').execute()
         labels = [l['name'] for l in res.get('labels', []) if l['type'] == 'user']
         return "\n".join(labels) if labels else "No labels."
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def send_email(to: str, subject: str, body: str):
+    """Send a simple email via Gmail."""
+    try:
+        service = get_gmail_service()
+        message = EmailMessage()
+        message.set_content(body)
+        message['To'], message['Subject'] = to, subject
+        encoded = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        res = service.users().messages().send(userId="me", body={'raw': encoded}).execute()
+        return f"✅ Email sent! ID: {res['id']}"
+    except Exception as e: return str(e)
+
+# --- CALENDAR TOOLS ---
+
+@mcp.tool()
+def list_calendar_events(max_results: int = 10):
+    """List the next upcoming events from the primary calendar."""
+    try:
+        service = get_calendar_service()
+        now = datetime.utcnow().isoformat() + 'Z'
+        events_result = service.events().list(calendarId='primary', timeMin=now,
+                                              maxResults=max_results, singleEvents=True,
+                                              orderBy='startTime').execute()
+        events = events_result.get('items', [])
+        if not events: return "No upcoming events found."
+        output = []
+        for event in events:
+            start = event['start'].get('dateTime', event['start'].get('date'))
+            output.append(f"- {start}: {event.get('summary')} (ID: {event.get('id')})")
+        return "\n".join(output)
+    except Exception as e: return f"❌ Error: {e}"
+
+@mcp.tool()
+def create_calendar_event(summary: str, description: str, start_time: str, end_time: str):
+    """Create a new calendar event. Times must be in ISO format (e.g., 2026-02-11T20:00:00)."""
+    try:
+        service = get_calendar_service()
+        event = {
+            'summary': summary,
+            'description': description,
+            'start': {'dateTime': f"{start_time}Z", 'timeZone': 'UTC'},
+            'end': {'dateTime': f"{end_time}Z", 'timeZone': 'UTC'},
+        }
+        event = service.events().insert(calendarId='primary', body=event).execute()
+        return f"✅ Event created: {event.get('htmlLink')}"
+    except Exception as e: return f"❌ Error: {e}"
+
+@mcp.tool()
+def delete_calendar_event(event_id: str):
+    """Delete a calendar event by its ID."""
+    try:
+        service = get_calendar_service()
+        service.events().delete(calendarId='primary', eventId=event_id).execute()
+        return "✅ Event deleted successfully."
+    except Exception as e: return f"❌ Error: {e}"
+
+# --- DRIVE TOOLS ---
+
+@mcp.tool()
+def search_drive(query: str):
+    """Search for files in Google Drive."""
+    try:
+        service = get_drive_service()
+        res = service.files().list(q=query, fields='files(id, name, mimeType)').execute()
+        items = res.get('files', [])
+        if not items: return "No files found."
+        return "\n".join([f"- {item['name']} ({item['id']})" for item in items])
     except Exception as e: return str(e)
 
 if __name__ == "__main__":

@@ -8,6 +8,11 @@ A high-performance Model Context Protocol (MCP) server implementation designed t
 
 ## 🚀 Key Capabilities
 
+### 📅 Google Calendar Orchestration
+- **`list_calendar_events`**: Retrieve upcoming schedule and event details.
+- **`create_calendar_event`**: Programmatically schedule new appointments and meetings.
+- **`delete_calendar_event`**: Remove events from the primary calendar.
+
 ### 📧 Intelligent Gmail Orchestration
 - **`create_gmail_label`**: Programmatically generate Gmail labels for automated organization.
 - **`batch_label_emails`**: Apply labels to historical emails based on search queries.
