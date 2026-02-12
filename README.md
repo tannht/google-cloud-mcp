@@ -16,63 +16,21 @@ A high-performance, enterprise-grade Model Context Protocol (MCP) server designe
 
 ### 📅 Advanced Calendar Management
 - **Scheduling**: List, create, and manage events with full Timezone support (Asia/Ho_Chi_Minh).
+- **Organization**: Keep your professional and personal life perfectly synced.
 
 ### 📂 Cloud Storage & Productivity (Drive, Docs, Sheets, Slides)
 - **Drive**: Semantic file search and metadata retrieval.
-- **Docs/Sheets/Slides**: Programmatic generation and manipulation of workspace documents.
+- **Docs**: Programmatic document generation and content manipulation.
+- **Sheets**: Automated data logging, financial tracking, and spreadsheet management.
+- **Slides**: Dynamic presentation creation and slide orchestration.
 
 ## 🔐 Authentication & Security
 
-- **Web Auth Portal**: Seamless authentication via `http://localhost:3838`.
-- **No-File Mode**: Supports `GOOGLE_TOKEN_JSON` for stateless deployments.
+- **Web Auth Portal (v1.6+)**: Seamless authentication via `http://localhost:3838`. No manual code copying required.
+- **No-File Mode**: Supports `GOOGLE_TOKEN_JSON` environment variable for stateless deployments (Docker/Cloud).
 - **GPG Signed**: Every commit is cryptographically signed for end-to-end integrity.
 
-## 🛠️ MCP Client Configuration
-
-To use this server with your favorite AI tools, add the following configuration:
-
-### 1. Claude Desktop
-Edit your `claude_desktop_config.json` (usually in `%APPDATA%\Claude` or `~/Library/Application Support/Claude`):
-
-```json
-{
-  "mcpServers": {
-    "google-cloud": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--project",
-        "/absolute/path/to/google-cloud-mcp",
-        "/absolute/path/to/google-cloud-mcp/main.py"
-      ],
-      "env": {
-        "GOOGLE_CLIENT_ID": "your-client-id",
-        "GOOGLE_CLIENT_SECRET": "your-client-secret",
-        "GOOGLE_TOKEN_JSON": "your-token-json-if-applicable"
-      }
-    }
-  }
-}
-```
-
-### 2. Cursor IDE
-1. Go to **Settings** -> **Features** -> **MCP Servers**.
-2. Click **+ Add New MCP Server**.
-3. Name: `google-cloud`.
-4. Type: `stdio`.
-5. Command: `uv run --project /path/to/google-cloud-mcp /path/to/google-cloud-mcp/main.py`.
-
-### 3. OpenClaw
-Add to your `openclaw.json` under the `mcpServers` section:
-```json
-"google-claude": {
-  "type": "stdio",
-  "command": "uv",
-  "args": ["run", "--project", "/root/PROJECTS/google-cloud-mcp", "/root/PROJECTS/google-cloud-mcp/main.py"]
-}
-```
-
-## 🚀 Deployment
+## 🛠️ Quick Start
 
 ### Docker (Recommended)
 ```bash
