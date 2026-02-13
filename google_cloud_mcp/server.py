@@ -2,6 +2,7 @@ from fastmcp import FastMCP
 import os.path
 import base64
 import json
+import sys
 import threading
 from urllib.parse import urlparse, parse_qs
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -46,6 +47,10 @@ def get_credentials():
         creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH, SCOPES)
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
+    if not creds or not creds.valid:
+        raise RuntimeError(
+            f"Not authenticated. Please open http://localhost:{AUTH_PORT} in your browser to authorize with Google."
+        )
     return creds
 
 # --- AUTH PORTAL ---
@@ -61,8 +66,11 @@ class AuthPortalHandler(BaseHTTPRequestHandler):
         redirect_uri = f"http://localhost:{AUTH_PORT}/callback"
 
         if self.path == '/':
-            creds = get_credentials()
-            ok = creds and creds.valid
+            try:
+                creds = get_credentials()
+                ok = creds and creds.valid
+            except Exception:
+                ok = False
             html = f"""<html><head><title>PubPug Google Portal</title></head>
             <body style='font-family:sans-serif;padding:50px;background:#f0f2f5;display:flex;justify-content:center'>
             <div style='max-width:500px;background:#fff;padding:40px;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center'>
@@ -120,7 +128,16 @@ class AuthPortalHandler(BaseHTTPRequestHandler):
 
 def _start_portal():
     server = HTTPServer(('0.0.0.0', AUTH_PORT), AuthPortalHandler)
-    print(f"Auth Portal running at http://localhost:{AUTH_PORT}")
+    auth_msg = f"""
+
+============================================================
+🔐 GOOGLE ACCOUNT AUTHENTICATION
+📱 Open your browser: http://localhost:{AUTH_PORT}
+============================================================
+
+"""
+    print(auth_msg, file=sys.stderr)
+    sys.stderr.flush()
     server.serve_forever()
 
 threading.Thread(target=_start_portal, daemon=True).start()
@@ -214,6 +231,19 @@ def create_calendar_event(summary: str, start_time: str, end_time: str, descript
     except Exception as e: return str(e)
 
 # --- DRIVE TOOLS ---
+
+@mcp.tool()
+def list_drive_folders(parent_id: str = "root"):
+    """List all folders in Google Drive. parent_id: 'root' for main folder."""
+    try:
+        service = build('drive', 'v3', credentials=get_credentials())
+        query = f"'{parent_id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        res = service.files().list(q=query, fields='files(id, name, webViewLink)', pageSize=100).execute()
+        items = res.get('files', [])
+        if not items:
+            return "No folders found."
+        return "\n".join([f"📁 {item['name']}\n   ID: {item['id']}\n   Link: {item.get('webViewLink', 'N/A')}\n" for item in items])
+    except Exception as e: return str(e)
 
 @mcp.tool()
 def search_drive(query: str):
