@@ -13,3 +13,4 @@ token.json
 .coverage
 .vscode/
 .idea/
+.mcp.json
