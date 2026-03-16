@@ -579,6 +579,34 @@ amp mcp add gg-mcp -- uvx gg-mcp
 
 ---
 
+## OpenClaw
+
+**File:** Configuration UI during agent setup
+
+```json
+{
+  "adapterType": "claude_local",
+  "adapterConfig": {
+    "cwd": "/path/to/working/directory",
+    "env": {
+      "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+      "GOOGLE_CLIENT_SECRET": "your-client-secret"
+    }
+  }
+}
+```
+
+**Alternative: Command-line installation**
+
+```bash
+openclaw agent install gg-mcp \
+  --adapter-type claude_local \
+  --env GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com \
+  --env GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+---
+
 ## Using Docker (any client)
 
 Replace the `command` and `args` in any configuration above:

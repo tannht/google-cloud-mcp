@@ -1,7 +1,7 @@
 [project]
 name = "gg-mcp"
 version = "2.1.0"
-description = "MCP server for Google Calendar, Gmail, and Drive integration"
+description = "MCP server for Google Workspace integration - Gmail, Calendar, Drive, Docs, Sheets, and Slides"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
