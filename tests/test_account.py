@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from google_cloud_mcp import server
 
-get_account_info = server.get_account_info.fn
+get_account_info = server.get_account_info
 
 
 class TestGetAccountInfo:

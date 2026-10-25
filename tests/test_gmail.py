@@ -20,9 +20,9 @@ import base64
 from email.message import EmailMessage
 from google_cloud_mcp import server
 
-create_gmail_label = server.create_gmail_label.fn
-list_gmail_labels = server.list_gmail_labels.fn
-send_email = server.send_email.fn
+create_gmail_label = server.create_gmail_label
+list_gmail_labels = server.list_gmail_labels
+send_email = server.send_email
 
 
 class TestCreateGmailLabel:

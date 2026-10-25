@@ -16,14 +16,13 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 
 # Import the functions to test
-# @mcp.tool() wraps functions into FunctionTool objects,
-# so we access the underlying function via .fn
+# FastMCP 3+: @mcp.tool() returns the plain function, so call it directly.
 from google_cloud_mcp import server
-create_spreadsheet = server.create_spreadsheet.fn
-read_spreadsheet = server.read_spreadsheet.fn
-update_spreadsheet = server.update_spreadsheet.fn
-append_to_spreadsheet = server.append_to_spreadsheet.fn
-get_spreadsheet_info = server.get_spreadsheet_info.fn
+create_spreadsheet = server.create_spreadsheet
+read_spreadsheet = server.read_spreadsheet
+update_spreadsheet = server.update_spreadsheet
+append_to_spreadsheet = server.append_to_spreadsheet
+get_spreadsheet_info = server.get_spreadsheet_info
 
 
 class TestCreateSpreadsheet:
