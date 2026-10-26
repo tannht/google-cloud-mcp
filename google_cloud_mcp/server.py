@@ -31,6 +31,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/adwords',
     'https://www.googleapis.com/auth/webmasters',
     'https://www.googleapis.com/auth/analytics.readonly',
+    'https://www.googleapis.com/auth/analytics.edit',
     'https://www.googleapis.com/auth/tagmanager.readonly',
     'https://www.googleapis.com/auth/tagmanager.edit.containers',
     'https://www.googleapis.com/auth/tagmanager.edit.containerversions',
@@ -52,10 +53,11 @@ def get_credentials():
     creds = None
     token_json = os.getenv('GOOGLE_TOKEN_JSON')
     if token_json:
-        try: creds = Credentials.from_authorized_user_info(json.loads(token_json), SCOPES)
+        # No scopes passed: refresh with the scopes the token was granted, so adding a scope doesn't break old tokens.
+        try: creds = Credentials.from_authorized_user_info(json.loads(token_json))
         except: pass
     if (not creds or not creds.valid) and os.path.exists(TOKEN_FILE_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH, SCOPES)
+        creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH)
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
     if not creds or not creds.valid:
@@ -832,6 +834,29 @@ def update_ads_responsive_search_ad(customer_id: str, ad_id: str, headlines: str
         return f"✅ {'Validated update of' if validate_only else 'Updated'} ad {ad_id}: {', '.join(m.split('.')[-1] for m in mask)}"
     except Exception as e: return str(e)
 
+@mcp.tool()
+def update_ads_conversion_action(customer_id: str, conversion_action_id: str, counting_type: str = "",
+                                 status: str = "", primary_for_goal: str = "", validate_only: bool = False):
+    """Update a conversion action. counting_type: ONE_PER_CLICK or MANY_PER_CLICK; status: ENABLED, PAUSED,
+    REMOVED; primary_for_goal: 'true' or 'false'. Only provided fields change."""
+    try:
+        cid = _ads_id(customer_id)
+        upd, mask = {'resourceName': f"customers/{cid}/conversionActions/{conversion_action_id}"}, []
+        if counting_type:
+            if counting_type.upper() not in ('ONE_PER_CLICK', 'MANY_PER_CLICK'): return "❌ counting_type must be ONE_PER_CLICK or MANY_PER_CLICK"
+            upd['countingType'] = counting_type.upper(); mask.append('counting_type')
+        if status:
+            if status.upper() not in ('ENABLED', 'PAUSED', 'REMOVED'): return "❌ status must be ENABLED, PAUSED or REMOVED"
+            upd['status'] = status.upper(); mask.append('status')
+        if primary_for_goal:
+            if primary_for_goal.lower() not in ('true', 'false'): return "❌ primary_for_goal must be 'true' or 'false'"
+            upd['primaryForGoal'] = primary_for_goal.lower() == 'true'; mask.append('primary_for_goal')
+        if not mask: return "❌ Nothing to update"
+        _ads_call('POST', f"customers/{cid}/conversionActions:mutate", {
+            'operations': [{'update': upd, 'updateMask': ','.join(mask)}], 'validateOnly': validate_only})
+        return f"✅ {'Validated' if validate_only else 'Updated'} conversion action {conversion_action_id}: {', '.join(mask)}"
+    except Exception as e: return str(e)
+
 # --- GOOGLE SEARCH CONSOLE TOOLS ---
 
 @mcp.tool()
@@ -1088,6 +1113,80 @@ def publish_gtm_version(version_path: str):
         if res.get('compilerError'):
             return f"❌ Publish failed: compiler error in version"
         return f"✅ Published {version_path}"
+    except Exception as e: return str(e)
+
+_GTM_KINDS = ('tags', 'triggers', 'variables')
+
+def _gtm_kind(path: str) -> str:
+    kind = path.rstrip('/').split('/')[-2]
+    if kind not in _GTM_KINDS: raise ValueError(f"Path must point to a tag, trigger or variable, got '{kind}'")
+    return kind
+
+def _gtm_workspaces():
+    return _gtm().accounts().containers().workspaces()
+
+@mcp.tool()
+def get_gtm_resource(path: str):
+    """Get one tag/trigger/variable as JSON. path: accounts/{a}/containers/{c}/workspaces/{w}/tags/{id}"""
+    try:
+        return json.dumps(getattr(_gtm_workspaces(), _gtm_kind(path))().get(path=path).execute(), ensure_ascii=False)
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def create_gtm_resource(workspace_path: str, resource: str, body: str):
+    """Create a tag/trigger/variable in a workspace (draft: nothing is live until a version is published).
+    resource: tags, triggers or variables. body: JSON as in the Tag Manager API."""
+    try:
+        if resource not in _GTM_KINDS: return f"❌ resource must be one of {_GTM_KINDS}"
+        res = getattr(_gtm_workspaces(), resource)().create(parent=workspace_path, body=json.loads(body)).execute()
+        return f"✅ Created {resource[:-1]} '{res.get('name')}' (ID: {res.get(resource[:-1] + 'Id')}, path: {res.get('path')})"
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def update_gtm_resource(path: str, body: str):
+    """Update a tag/trigger/variable: top-level fields in body (JSON) replace the existing ones, others are kept."""
+    try:
+        api = getattr(_gtm_workspaces(), _gtm_kind(path))()
+        current = api.get(path=path).execute()
+        res = api.update(path=path, fingerprint=current['fingerprint'], body={**current, **json.loads(body)}).execute()
+        return f"✅ Updated '{res.get('name')}' ({path})"
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def delete_gtm_resource(path: str):
+    """Delete a tag/trigger/variable from a workspace (draft only; the live version is unchanged)."""
+    try:
+        getattr(_gtm_workspaces(), _gtm_kind(path))().delete(path=path).execute()
+        return f"✅ Deleted {path}"
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def get_gtm_workspace_status(workspace_path: str):
+    """List unpublished changes in a workspace."""
+    try:
+        res = _gtm_workspaces().getStatus(path=workspace_path).execute()
+        changes = res.get('workspaceChange', [])
+        if not changes: return "No unpublished changes."
+        out = []
+        for c in changes:
+            item = c.get('tag') or c.get('trigger') or c.get('variable') or {}
+            out.append(f"- {c.get('changeStatus')}: {item.get('name')}")
+        if res.get('mergeConflict'): out.append("⚠️ Merge conflicts present")
+        return "\n".join(out)
+    except Exception as e: return str(e)
+
+@mcp.tool()
+def create_ga4_key_event(property_id: str, event_name: str, counting_method: str = "ONCE_PER_EVENT"):
+    """Mark an event as a key event (formerly conversion) on a GA4 property. Needs the analytics.edit scope.
+    counting_method: ONCE_PER_EVENT or ONCE_PER_SESSION."""
+    try:
+        if counting_method.upper() not in ('ONCE_PER_EVENT', 'ONCE_PER_SESSION'):
+            return "❌ counting_method must be ONCE_PER_EVENT or ONCE_PER_SESSION"
+        service = build('analyticsadmin', 'v1beta', credentials=get_credentials())
+        pid = property_id.replace('properties/', '')
+        res = service.properties().keyEvents().create(parent=f"properties/{pid}", body={
+            'eventName': event_name, 'countingMethod': counting_method.upper()}).execute()
+        return f"✅ Key event created: {res.get('eventName')} ({res.get('name')})"
     except Exception as e: return str(e)
 
 if __name__ == "__main__":
