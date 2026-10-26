@@ -16,11 +16,11 @@ from unittest.mock import Mock, MagicMock, patch, call
 from googleapiclient.errors import HttpError
 
 from google_cloud_mcp import server
-search_spreadsheets = server.search_spreadsheets.fn
-clear_spreadsheet_range = server.clear_spreadsheet_range.fn
-batch_update_spreadsheet = server.batch_update_spreadsheet.fn
-add_sheet = server.add_sheet.fn
-export_spreadsheet = server.export_spreadsheet.fn
+search_spreadsheets = server.search_spreadsheets
+clear_spreadsheet_range = server.clear_spreadsheet_range
+batch_update_spreadsheet = server.batch_update_spreadsheet
+add_sheet = server.add_sheet
+export_spreadsheet = server.export_spreadsheet
 
 
 class TestSearchSpreadsheets:

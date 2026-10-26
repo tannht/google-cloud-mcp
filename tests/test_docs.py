@@ -17,15 +17,14 @@ import base64
 
 
 # Import the functions to test
-# @mcp.tool() wraps functions into FunctionTool objects,
-# so we use .fn to get the underlying callable.
+# FastMCP 3+: @mcp.tool() returns the plain function, so call it directly.
 try:
     from google_cloud_mcp import server
-    create_document = server.create_document.fn
-    get_document = server.get_document.fn
-    append_to_document = server.append_to_document.fn
-    search_documents = server.search_documents.fn
-    export_document = server.export_document.fn
+    create_document = server.create_document
+    get_document = server.get_document
+    append_to_document = server.append_to_document
+    search_documents = server.search_documents
+    export_document = server.export_document
 except ImportError:
     # If import fails, skip all tests
     pytest.skip("google_cloud_mcp.server module not found", allow_module_level=True)

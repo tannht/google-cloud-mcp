@@ -114,6 +114,42 @@ Restart Claude Desktop and the tools are ready to use! 🎉
 - `add_sheet` - Add a new sheet/tab
 - `export_spreadsheet` - Export (csv, xlsx, pdf, tsv)
 
+### Google Ads
+Requires `GOOGLE_ADS_DEVELOPER_TOKEN` (see `.env.example`) and the Google Ads API enabled in your Cloud project.
+- `list_ads_accounts` - List accessible Google Ads accounts
+- `ads_search` - Run any GAQL query
+- `list_ads_campaigns` - List campaigns with daily budget (optional status filter)
+- `get_ads_campaign_performance` - Impressions, clicks, cost, conversions per campaign
+- `set_ads_campaign_status` - Pause or enable a campaign
+
+### Google Search Console
+Enable the Search Console API in your Cloud project.
+- `list_search_console_sites` - List properties
+- `search_console_query` - Search analytics (clicks, impressions, CTR, position)
+- `list_search_console_sitemaps` - List submitted sitemaps
+- `inspect_url` - URL Inspection (index status)
+- `add_search_console_site` - Add a property
+- `submit_search_console_sitemap` - Submit a sitemap
+
+### Google Analytics (GA4)
+Enable the Analytics Data API and Analytics Admin API in your Cloud project.
+- `list_ga4_properties` - List accounts and properties
+- `run_ga4_report` - Run a report (metrics, dimensions, date range)
+- `run_ga4_realtime_report` - Realtime report (last 30 minutes)
+- `list_ga4_data_streams` - Data streams and measurement IDs
+- `list_ga4_key_events` - Key events (conversions)
+- `get_ga4_metadata` - Available dimension/metric names
+
+### Google Tag Manager
+Enable the Tag Manager API in your Cloud project.
+- `list_gtm_accounts`, `list_gtm_containers`, `list_gtm_workspaces` - Browse accounts, containers, workspaces
+- `list_gtm_tags`, `list_gtm_triggers`, `list_gtm_variables` - Workspace contents
+- `get_gtm_live_version` - Currently published version
+- `create_gtm_version` - Create a version from a workspace (not published)
+- `publish_gtm_version` - Publish a version live
+
+> **Upgrading:** these services add OAuth scopes (`adwords`, `webmasters`, `analytics.readonly`, `tagmanager.*`). Delete `.token.json` and re-authorize at http://localhost:3838.
+
 ### Google Slides
 - `create_presentation` - Create a new presentation
 - `get_presentation` - Get slide metadata and content

@@ -12,8 +12,8 @@ from unittest.mock import MagicMock, call
 from datetime import datetime, timedelta
 from google_cloud_mcp import server
 
-list_calendar_events = server.list_calendar_events.fn
-create_calendar_event = server.create_calendar_event.fn
+list_calendar_events = server.list_calendar_events
+create_calendar_event = server.create_calendar_event
 
 
 class TestListCalendarEvents:

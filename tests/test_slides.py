@@ -17,13 +17,13 @@ import base64
 from google_cloud_mcp import server
 
 # Extract the actual functions from the FunctionTool wrappers
-create_presentation = server.create_presentation.fn
-get_presentation = server.get_presentation.fn
-add_slide = server.add_slide.fn
-add_text_to_slide = server.add_text_to_slide.fn
-search_presentations = server.search_presentations.fn
-delete_slide = server.delete_slide.fn
-export_presentation = server.export_presentation.fn
+create_presentation = server.create_presentation
+get_presentation = server.get_presentation
+add_slide = server.add_slide
+add_text_to_slide = server.add_text_to_slide
+search_presentations = server.search_presentations
+delete_slide = server.delete_slide
+export_presentation = server.export_presentation
 
 
 class TestCreatePresentation:

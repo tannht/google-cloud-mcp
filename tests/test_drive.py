@@ -8,7 +8,7 @@ covering success cases, edge cases, error handling, and API interaction patterns
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from google_cloud_mcp import server
-search_drive = server.search_drive.fn
+search_drive = server.search_drive
 
 
 class TestSearchDrive:
